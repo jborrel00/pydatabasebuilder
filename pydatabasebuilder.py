@@ -16,16 +16,27 @@ sleep(.1)
 GPIO.output(5,1)
 
 if '/dev/ttyACM1' in glob.glob('/dev/tty*'):
-  ser = serial.Serial('/dev/ttyACM1',115200)
+	ser = serial.Serial('/dev/ttyACM1',115200)
 else:
 	ser = serial.Serial('/dev/ttyACM0',115200)
+
+con = mdb.connect('localhost','root','foosball','foosball');
+
+with con:
+	cur = con.cursor()
+	##cur.execute('drop table if exists name_hex_data')
+	##cur.execute('create table name_hex_data (Id int primary key auto_increment, name varchar(16), hex varchar(47))')
+		
+
 i='y'
 while i == 'y':
+        GPIO.output(5,0)
+        sleep(.1)
+        GPIO.output(5,1)
 	s = ser.readline()
 	print s
 	n=s[49:66]
-	#n = n.replace(".", "")
-	n = n.capitalize()
+	n = n.capitalize().replace(".","").rstrip()
 	s=s[0:47]
 	print s
 	print n
@@ -34,8 +45,10 @@ while i == 'y':
 
 	with con:
 		cur = con.cursor()
-		cur.execute("insert into Name_hex_data(hex,name) values('" +s+ "','"+n+"')")
-		cur.execute('select hex from Name_hex_data')
+		#cur.execute('drop table if exists name_hex_data')
+		#cur.execute('create table name_hex_data (Id int primary key auto_increment, name varchar(16), hex varchar(47))')
+		cur.execute("insert into name_hex_data(hex,name) values('" +s+ "','"+n+"')")
+		cur.execute('select hex from name_hex_data')
 		rows = cur.fetchall()
 		for row in rows:
 			print row[0]
